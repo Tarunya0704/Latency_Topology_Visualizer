@@ -1,8 +1,7 @@
 'use client';
 
-import { Search, Filter, Sun, Moon } from 'lucide-react';
+import { Search, Filter, Sun, Moon, X } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import { CloudProvider } from '../types';
 
 export default function ControlPanel() {
   const {
@@ -20,6 +19,8 @@ export default function ControlPanel() {
     toggleRegions,
     darkMode,
     toggleDarkMode,
+    latencyRange,
+    setLatencyRange,
   } = useStore();
 
   return (
@@ -47,33 +48,52 @@ export default function ControlPanel() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search exchanges..."
-              className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
+              placeholder="Type to search exchanges..."
+              className={`w-full pl-10 pr-10 py-2 rounded-lg border ${
                 darkMode
                   ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500'
                   : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400'
               } focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
             />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
+          {searchTerm && (
+            <p className="text-xs text-gray-400 mt-1">Filtering by "{searchTerm}"</p>
+          )}
         </div>
 
-        {/* Cloud Provider Filter */}
+        {/* Cloud Provider */}
         <div>
-          <label className="block text-sm font-medium mb-2">Cloud Provider</label>
+          <label className="block text-sm font-medium mb-3">Cloud Provider</label>
           <div className="grid grid-cols-2 gap-2">
-            {(['all', 'AWS', 'GCP', 'Azure'] as const).map((provider) => (
+            {[
+              { value: 'all', label: 'All', color: '#ffffff' },
+              { value: 'AWS', label: 'AWS', color: '#FF9900' },
+              { value: 'GCP', label: 'GCP', color: '#4285F4' },
+              { value: 'Azure', label: 'Azure', color: '#00FF00' }
+            ].map((provider) => (
               <button
-                key={provider}
-                onClick={() => setSelectedCloudProvider(provider)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  selectedCloudProvider === provider
+                key={provider.value}
+                onClick={() => setSelectedCloudProvider(provider.value as any)}
+                className={`px-4 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                  selectedCloudProvider === provider.value
                     ? 'bg-blue-600 text-white shadow-lg'
                     : darkMode
                     ? 'bg-gray-800 hover:bg-gray-700 text-gray-300'
                     : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                 }`}
               >
-                {provider === 'all' ? 'All' : provider}
+                {provider.value !== 'all' && (
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: provider.color }} />
+                )}
+                {provider.label}
               </button>
             ))}
           </div>
@@ -85,11 +105,11 @@ export default function ControlPanel() {
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value as any)}
-            className={`w-full px-4 py-2 rounded-lg border ${
+            className={`w-full px-4 py-2.5 rounded-lg border ${
               darkMode
                 ? 'bg-gray-800 border-gray-700 text-white'
                 : 'bg-gray-50 border-gray-300 text-gray-900'
-            } focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
+            } focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer`}
           >
             <option value="1h">Last 1 Hour</option>
             <option value="24h">Last 24 Hours</option>
@@ -98,105 +118,96 @@ export default function ControlPanel() {
           </select>
         </div>
 
-        {/* Visualization Layers */}
-        <div>
-          <label className="block text-sm font-medium mb-3">Visualization Layers</label>
-          <div className="space-y-2">
-            <label className="flex items-center justify-between cursor-pointer group">
-              <span className="text-sm">Real-time Latency</span>
-              <div
-                onClick={toggleRealtime}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
-                  showRealtime ? 'bg-blue-600' : darkMode ? 'bg-gray-700' : 'bg-gray-300'
-                }`}
-              >
-                <div
-                  className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                    showRealtime ? 'transform translate-x-6' : ''
-                  }`}
-                />
-              </div>
-            </label>
-
-            <label className="flex items-center justify-between cursor-pointer group">
-              <span className="text-sm">Historical Data</span>
-              <div
-                onClick={toggleHistorical}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
-                  showHistorical ? 'bg-blue-600' : darkMode ? 'bg-gray-700' : 'bg-gray-300'
-                }`}
-              >
-                <div
-                  className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                    showHistorical ? 'transform translate-x-6' : ''
-                  }`}
-                />
-              </div>
-            </label>
-
-            <label className="flex items-center justify-between cursor-pointer group">
-              <span className="text-sm">Cloud Regions</span>
-              <div
-                onClick={toggleRegions}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
-                  showRegions ? 'bg-blue-600' : darkMode ? 'bg-gray-700' : 'bg-gray-300'
-                }`}
-              >
-                <div
-                  className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                    showRegions ? 'transform translate-x-6' : ''
-                  }`}
-                />
-              </div>
-            </label>
-          </div>
-        </div>
-
-        {/* Latency Range Filter */}
+        {/* Latency Range */}
         <div>
           <label className="block text-sm font-medium mb-2">Latency Range (ms)</label>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              placeholder="Min"
-              className={`flex-1 px-3 py-2 rounded-lg border ${
-                darkMode
-                  ? 'bg-gray-800 border-gray-700 text-white'
-                  : 'bg-gray-50 border-gray-300 text-gray-900'
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            />
-            <input
-              type="number"
-              placeholder="Max"
-              className={`flex-1 px-3 py-2 rounded-lg border ${
-                darkMode
-                  ? 'bg-gray-800 border-gray-700 text-white'
-                  : 'bg-gray-50 border-gray-300 text-gray-900'
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            />
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="text-xs text-gray-400 mb-1 block">Min</label>
+              <input
+                type="number"
+                value={latencyRange[0]}
+                onChange={(e) => setLatencyRange([Number(e.target.value), latencyRange[1]])}
+                className={`w-full px-3 py-2 rounded-lg border ${
+                  darkMode
+                    ? 'bg-gray-800 border-gray-700 text-white'
+                    : 'bg-gray-50 border-gray-300 text-gray-900'
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-xs text-gray-400 mb-1 block">Max</label>
+              <input
+                type="number"
+                value={latencyRange[1]}
+                onChange={(e) => setLatencyRange([latencyRange[0], Number(e.target.value)])}
+                className={`w-full px-3 py-2 rounded-lg border ${
+                  darkMode
+                    ? 'bg-gray-800 border-gray-700 text-white'
+                    : 'bg-gray-50 border-gray-300 text-gray-900'
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Legend */}
+        {/* Toggles */}
+        <div>
+          <label className="block text-sm font-medium mb-3">Visualization Layers</label>
+          <div className="space-y-3">
+            {[
+              { label: 'Real-time Latency', checked: showRealtime, toggle: toggleRealtime },
+              { label: 'Historical Data', checked: showHistorical, toggle: toggleHistorical },
+              { label: 'Cloud Regions', checked: showRegions, toggle: toggleRegions }
+            ].map((item) => (
+              <label key={item.label} className="flex items-center justify-between cursor-pointer">
+                <span className="text-sm font-medium">{item.label}</span>
+                <button
+                  onClick={item.toggle}
+                  className={`relative w-12 h-6 rounded-full ${
+                    item.checked ? 'bg-blue-600' : darkMode ? 'bg-gray-700' : 'bg-gray-300'
+                  }`}
+                >
+                  <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                    item.checked ? 'translate-x-6' : ''
+                  }`} />
+                </button>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Legends */}
         <div className={`pt-4 border-t ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
-          <label className="block text-sm font-medium mb-3">Latency Legend</label>
+          <label className="block text-sm font-medium mb-3">Latency Colors</label>
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-sm">Low (&lt; 50ms)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-yellow-500" />
-              <span className="text-sm">Medium (50-100ms)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-orange-500" />
-              <span className="text-sm">High (100-150ms)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span className="text-sm">Critical (&gt; 150ms)</span>
-            </div>
+            {[
+              { color: '#22c55e', label: 'Low (<50ms)' },
+              { color: '#eab308', label: 'Medium (50-100ms)' },
+              { color: '#f97316', label: 'High (100-150ms)' },
+              { color: '#ef4444', label: 'Critical (>150ms)' }
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: item.color }} />
+                <span className="text-sm">{item.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={`pt-4 border-t ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
+          <label className="block text-sm font-medium mb-3">Provider Colors</label>
+          <div className="space-y-2">
+            {[
+              { color: '#FF9900', label: 'AWS' },
+              { color: '#4285F4', label: 'GCP' },
+              { color: '#00FF00', label: 'Azure' }
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-3">
+                <div className="w-4 h-4 rounded-full" style={{ backgroundColor: item.color }} />
+                <span className="text-sm">{item.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
