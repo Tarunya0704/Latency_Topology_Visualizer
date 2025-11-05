@@ -6,6 +6,7 @@ import { OrbitControls, Sphere, Stars, Html, useTexture } from '@react-three/dre
 import * as THREE from 'three';
 import { Exchange, LatencyData, CloudRegion } from '../types';
 import { useStore } from '../store/useStore';
+import HeatmapOverlay from './HeatmapOverlay';
 
 function LatLonToVector3(lat: number, lon: number, radius: number): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180);
@@ -405,9 +406,16 @@ export default function Globe3D({ exchanges, latencyData, cloudRegions }: Globe3
       {/* Starfield background */}
       <Stars radius={300} depth={60} count={10000} factor={6} fade speed={1} />
       
-      {/* Earth Globe */}
       <EarthGlobe />
-      <GridLines />
+
+{/* ADD THIS - Heatmap Overlay */}
+<HeatmapOverlay 
+  exchanges={filteredExchanges} 
+  latencyData={latencyData} 
+  visible={showRegions} 
+/>
+
+<GridLines />
       
       {/* Cloud Regions */}
       {filteredRegions.map((region) => (
