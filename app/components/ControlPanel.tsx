@@ -1,9 +1,14 @@
 'use client';
 
-import { Search, Filter, Sun, Moon, X } from 'lucide-react';
+import { Search, Filter, Sun, Moon, X, Activity, Wifi } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
-export default function ControlPanel() {
+interface ControlPanelProps {
+  useRealAPI?: boolean;
+  toggleAPIMode?: () => void;
+}
+
+export default function ControlPanel({ useRealAPI, toggleAPIMode }: ControlPanelProps) {
   const {
     searchTerm,
     setSearchTerm,
@@ -33,12 +38,57 @@ export default function ControlPanel() {
         <button
           onClick={toggleDarkMode}
           className={`p-2 rounded-lg ${darkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'} transition-colors`}
+          aria-label="Toggle theme"
         >
           {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
         </button>
       </div>
 
       <div className="space-y-6">
+        
+        {/* API Mode Toggle */}
+        {toggleAPIMode && (
+          <div className={`p-4 rounded-lg border-2 ${
+            useRealAPI 
+              ? 'bg-green-500/10 border-green-500' 
+              : 'bg-blue-500/10 border-blue-500'
+          }`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                {useRealAPI ? (
+                  <Wifi className="w-4 h-4 text-green-500" />
+                ) : (
+                  <Activity className="w-4 h-4 text-blue-500" />
+                )}
+                <span className="text-sm font-bold">
+                  {useRealAPI ? 'Real API Mode' : 'Simulation Mode'}
+                </span>
+              </div>
+              <div className={`w-2 h-2 rounded-full ${
+                useRealAPI ? 'bg-green-500 animate-pulse' : 'bg-blue-500'
+              }`} />
+            </div>
+            <p className="text-xs text-gray-400 mb-3">
+              {useRealAPI 
+                ? 'Using real exchange APIs (may have CORS limitations)' 
+                : 'Using geographic distance simulation (demo safe)'}
+            </p>
+            <button
+              onClick={toggleAPIMode}
+              className={`w-full px-4 py-2 rounded-lg font-medium transition-all ${
+                useRealAPI
+                  ? 'bg-green-600 hover:bg-green-700 text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              {useRealAPI ? 'Switch to Simulation' : 'Try Real APIs'}
+            </button>
+            <p className="text-[10px] text-gray-500 mt-2">
+              Note: Real APIs may fail due to browser CORS policies
+            </p>
+          </div>
+        )}
+
         {/* Search */}
         <div>
           <label className="block text-sm font-medium mb-2">Search Exchange</label>
@@ -59,6 +109,7 @@ export default function ControlPanel() {
               <button
                 onClick={() => setSearchTerm('')}
                 className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                aria-label="Clear search"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -167,6 +218,7 @@ export default function ControlPanel() {
                   className={`relative w-12 h-6 rounded-full ${
                     item.checked ? 'bg-blue-600' : darkMode ? 'bg-gray-700' : 'bg-gray-300'
                   }`}
+                  aria-label={`Toggle ${item.label}`}
                 >
                   <div className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
                     item.checked ? 'translate-x-6' : ''

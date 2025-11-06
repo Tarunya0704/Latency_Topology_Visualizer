@@ -24,7 +24,7 @@ const Globe3D = dynamic(() => import('./components/Globe3D'), {
 
 export default function Home() {
   const { darkMode, showHistorical, selectedExchange, searchTerm } = useStore();
-  const { latencyData, isLoading } = useLatencyData(EXCHANGES);
+  const { latencyData, isLoading, useRealAPI, toggleAPIMode } = useLatencyData(EXCHANGES);
 
   return (
     <main className={`min-h-screen ${darkMode ? 'bg-gray-950 text-white' : 'bg-gray-50 text-gray-900'}`}>
@@ -35,7 +35,9 @@ export default function Home() {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Globe className="w-10 h-10 text-blue-500 animate-pulse" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse ${
+                  useRealAPI ? 'bg-green-500' : 'bg-blue-500'
+                }`} />
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
@@ -47,9 +49,19 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/20">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm font-medium text-green-500">Live</span>
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
+                useRealAPI 
+                  ? 'bg-green-500/10 border-green-500/20' 
+                  : 'bg-blue-500/10 border-blue-500/20'
+              }`}>
+                <div className={`w-2 h-2 rounded-full animate-pulse ${
+                  useRealAPI ? 'bg-green-500' : 'bg-blue-500'
+                }`} />
+                <span className={`text-sm font-medium ${
+                  useRealAPI ? 'text-green-500' : 'text-blue-500'
+                }`}>
+                  {useRealAPI ? 'Real API' : 'Simulation'}
+                </span>
               </div>
               <div className={`px-4 py-2 rounded-lg ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-100 border-gray-300'} border`}>
                 <div className="text-xs text-gray-400 mb-0.5">Active Exchanges</div>
@@ -72,7 +84,7 @@ export default function Home() {
               <Info className="w-5 h-5 text-blue-500" />
               <p className={`text-sm ${darkMode ? 'text-blue-300' : 'text-blue-700'}`}>
                 <strong>Quick Start:</strong> Click on any colored marker on the globe to view latency connections. 
-                Use filters on the left to narrow down exchanges. Rotate and zoom the globe with your mouse or touch gestures.
+                Use the API toggle in the control panel to switch between simulation and real exchange APIs.
               </p>
             </div>
           </div>
@@ -84,7 +96,10 @@ export default function Home() {
         <div className="grid grid-cols-12 gap-6">
           {/* Control Panel - Left Sidebar */}
           <div className="col-span-12 lg:col-span-3">
-            <ControlPanel />
+            <ControlPanel 
+              useRealAPI={useRealAPI}
+              toggleAPIMode={toggleAPIMode}
+            />
           </div>
 
           {/* 3D Globe - Center */}
@@ -107,7 +122,7 @@ export default function Home() {
                   {isLoading && (
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Updating...</span>
+                      <span>{useRealAPI ? 'Fetching APIs...' : 'Updating...'}</span>
                     </div>
                   )}
                 </div>
@@ -115,11 +130,13 @@ export default function Home() {
 
               {/* Globe Container */}
               <div className="h-[650px] relative">
-                {isLoading && !latencyData.length ? (
+                {isLoading && latencyData.length === 0 ? (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
                     <div className="text-center">
                       <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-3" />
-                      <p className="text-white font-medium">Loading network data...</p>
+                      <p className="text-white font-medium">
+                        {useRealAPI ? 'Pinging Exchange APIs...' : 'Loading network data...'}
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -233,7 +250,7 @@ export default function Home() {
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-gray-400">Data Source:</span>
-                <span className="font-medium">Real-time Simulation</span>
+                <span className="font-medium">{useRealAPI ? 'Real Exchange APIs' : 'Simulation'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Update Frequency:</span>
@@ -266,9 +283,11 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-6 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <div className={`w-2 h-2 rounded-full animate-pulse ${
+                  useRealAPI ? 'bg-green-500' : 'bg-blue-500'
+                }`} />
                 <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
-                  System Operational
+                  {useRealAPI ? 'Real API Active' : 'Simulation Mode'}
                 </span>
               </div>
               <span className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
