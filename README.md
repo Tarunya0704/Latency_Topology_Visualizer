@@ -111,7 +111,7 @@ A real-time 3D globe visualization platform for monitoring and analyzing latency
 ```bash
 git clone <repository-url>
 cd Latency_Topology_Visualizer
-cd latency-visualizer
+
 ```
 
 2. **Install dependencies**
