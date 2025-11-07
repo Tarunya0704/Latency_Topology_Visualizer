@@ -1,156 +1,315 @@
-Latency Topology Visualizer
+# 🌐 Latency Topology Visualizer
 
+A real-time 3D globe visualization platform for monitoring and analyzing latency between cryptocurrency exchanges across different cloud providers (AWS, GCP, Azure).
 
-A sophisticated 3D visualization platform that displays cryptocurrency exchange server locations and real-time latency data across AWS, GCP, and Azure cloud regions. Built with Next.js and Three.js, this application provides traders and infrastructure teams with intuitive insights into global trading infrastructure performance.
+## 📋 Table of Contents
 
-🌟 Features
-🗺️ Interactive 3D World Map
-Real-time 3D globe visualization with smooth camera controls
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Installation](#-installation)
+- [Project Structure](#-project-structure)
+- [Usage](#-usage)
+- [API Documentation](#-api-documentation)
+- [Configuration](#-configuration)
+- [Development](#-development)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-Interactive exchange markers with hover/click information
+## ✨ Features
 
-Rotate, zoom, and pan capabilities for seamless exploration
+### 🌐 Interactive 3D Globe
 
-Responsive design optimized for desktop and mobile devices
+- **Real-time visualization** of cryptocurrency exchange locations
+- **Smooth rotation** and interactive camera controls
+- **Animated connections** showing latency between exchanges
+- **Grid overlay** with latitude/longitude lines
+- **Dynamic markers** with pulsing animations
 
-⚡ Real-time Latency Monitoring
-Live latency data between exchange servers and cloud regions
+### 📊 Real-time Latency Monitoring
 
-Color-coded connection indicators:
+- Live latency data between exchanges
+- Color-coded latency indicators:
+  - 🟢 Green: <50ms (Excellent)
+  - 🟡 Yellow: 50-100ms (Good)
+  - 🟠 Orange: 100-150ms (Fair)
+  - 🔴 Red: >150ms (Poor)
+- Animated data particles along connection paths
+- Auto-refresh every 5 seconds
 
-🟢 Green: <50ms (Excellent)
+### ☁️ Cloud Provider Integration
 
-🟡 Yellow: 50-100ms (Good)
+- Support for AWS, GCP, and Azure regions
+- Cloud region markers with provider-specific colors
+- Filter exchanges by cloud provider
+- Server count visualization per region
+- Cross-provider latency penalty calculation
 
-🟠 Orange: 100-150ms (Fair)
+### 📈 Analytics & Monitoring
 
-🔴 Red: >150ms (Poor)
+- Historical latency data tracking
+- Time range selection (1h, 24h, 7d, 30d)
+- Latency range filtering (min/max thresholds)
+- Statistical analysis (min, max, avg)
+- Real-time statistics dashboard
 
-Animated data streams and pulse effects
+### 🎨 User Interface
 
-Automatic updates every 5 seconds
+- **Dark/Light mode** toggle
+- **Search functionality** for exchanges
+- **Responsive control panel**
+- Real-time statistics dashboard
+- Historical data charts
+- Mobile-responsive design
 
-☁️ Multi-Cloud Provider Integration
-Support for AWS, GCP, and Azure regions
+### 🔄 Dual Mode Operation
 
-Provider-specific color coding and markers
+- **Simulation Mode**: Geographic distance-based latency calculation (default)
+- **Real API Mode**: Actual exchange API integration (with CORS awareness and fallback)
 
-Region boundary visualization with server counts
+## 🛠 Tech Stack
 
-Filter exchanges by cloud provider
+### Frontend Framework
 
-📊 Historical Analytics
-Time-series charts for latency trends
+- **Next.js 16** - React framework with App Router
+- **React 19** - UI library
+- **TypeScript 5** - Type safety
 
-Configurable time ranges (1h, 24h, 7d, 30d)
+### 3D Visualization
 
-Statistical analysis (min, max, average latency)
+- **Three.js** - 3D graphics library (via React Three Fiber)
+- **@react-three/fiber** - React renderer for Three.js
+- **@react-three/drei** - Useful helpers for R3F
 
-Historical data tracking and visualization
+### State Management
 
-🎨 Advanced Visualization
-Dark/Light theme toggle
+- **Zustand** - Lightweight state management
 
-Search functionality for exchanges and regions
+### Styling
 
-Toggle visualization layers (real-time, historical, regions)
+- **Tailwind CSS 4** - Utility-first CSS framework
+- **Lucide React** - Icon library
 
-Performance metrics dashboard
+### Data & APIs
 
-Network topology visualization
+- Custom latency simulation engine
+- Exchange API integration support
+- RESTful API endpoints
 
-🛠️ Technical Stack
-Frontend Framework
+## 📦 Installation
 
-Next.js 14+ with App Router
+### Prerequisites
 
-React 18+ with TypeScript
+- **Node.js 18+**
+- **npm**, **yarn**, or **pnpm**
+- Modern web browser with WebGL support
 
-Tailwind CSS for styling
+### Steps
 
-3D Visualization
+1. **Clone the repository**
 
-Three.js for 3D graphics
-
-React Three Fiber for React integration
-
-@react-three/drei for utilities
-
-State Management & Data
-
-Zustand for lightweight state management
-
-Real-time data simulation engine
-
-RESTful API integration
-
-🚀 Quick Start
-Prerequisites
-Node.js 18 or higher
-
-npm, yarn, or pnpm
-
-Installation
-bash
-# Clone the repository
+```bash
 git clone <repository-url>
-cd latency-topology-visualizer
+cd Latency_Topology_Visualizer
+cd latency-visualizer
+```
 
-# Install dependencies
+2. **Install dependencies**
+
+```bash
 npm install
+# or
+yarn install
+# or
+pnpm install
+```
 
-# Start development server
+3. **Run the development server**
+
+```bash
 npm run dev
-Navigate to http://localhost:3000 to view the application.
+# or
+yarn dev
+# or
+pnpm dev
+```
 
-📁 Project Structure
-text
-latency-topology-visualizer/
-├── app/                    # Next.js app directory
-│   ├── api/               # API routes
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Main page
-├── components/            # React components
-│   ├── Globe3D.tsx        # Main 3D globe
-│   ├── ExchangeMarker.tsx # Exchange visual markers
-│   ├── LatencyConnection.tsx
-│   ├── ControlPanel.tsx   # UI controls
-│   ├── HistoricalChart.tsx
-│   └── CloudRegions.tsx
-├── hooks/                 # Custom React hooks
-├── lib/                   # Utilities and configurations
-├── store/                 # State management
-├── types/                 # TypeScript definitions
-└── public/               # Static assets
-💡 Usage Guide
-Basic Navigation
-Rotate: Click and drag the globe
+4. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-Zoom: Use mouse wheel or pinch gesture
+### Production Build
 
-Pan: Right-click and drag
+```bash
+# Build the application
+npm run build
 
-Select: Click on exchange markers for detailed information
+# Start production server
+npm start
+```
 
-Data Filtering
-Use the control panel to filter by exchange, cloud provider, or latency range
+## 📁 Project Structure
 
-Search for specific exchanges using the search box
+```
+latency-visualizer/
+├── app/
+│   ├── api/
+│   │   └── latency/
+│   │       └── route.ts              # Latency API endpoint
+│   ├── components/
+│   │   ├── CloudRegions.tsx          # Cloud region markers
+│   │   ├── ControlPanel.tsx          # UI control panel
+│   │   ├── ExchangeMarker.tsx        # Exchange location markers
+│   │   ├── Globe3D.tsx               # Main 3D globe component
+│   │   ├── HeatmapOverlay.tsx        # Latency heatmap
+│   │   ├── HistoricalChart.tsx       # Historical data charts
+│   │   ├── LatencyConnection.tsx     # Connection visualizations
+│   │   └── StatsPanel.tsx            # Statistics dashboard
+│   ├── hooks/
+│   │   ├── useHistoricalData.ts      # Historical data hook
+│   │   └── useLatencyData.ts         # Real-time latency hook
+│   ├── lib/
+│   │   ├── apiIntegration.ts         # API integration logic
+│   │   ├── latencySimulator.ts       # Latency simulation
+│   │   ├── cloudRegions.ts           # Cloud region definitions
+│   │   └── exchanges.ts              # Exchange definitions
+│   ├── store/
+│   │   └── useStore.ts               # Zustand state store
+│   ├── types/
+│   │   └── index.ts                  # TypeScript definitions
+│   ├── globals.css                   # Global styles
+│   ├── layout.tsx                    # Root layout
+│   └── page.tsx                      # Main page
+├── public/                           # Static assets
+├── .gitignore
+├── next.config.ts                    # Next.js configuration
+├── package.json                      # Dependencies
+├── tailwind.config.ts                # Tailwind configuration
+└── tsconfig.json                     # TypeScript configuration
+```
 
-Toggle between real-time and historical views
+## 🚀 Usage
 
-Adjust time ranges for historical data analysis
+### Basic Operations
 
-Visualization Modes
-Simulation Mode: Geographic distance-based latency (safe for demos)
+#### 1. Selecting an Exchange
 
-Real API Mode: Actual exchange API integration (requires CORS configuration)
+- Click on any exchange marker (glowing sphere) on the globe
+- View connections and latency to other exchanges
+- Selected exchange will pulse with animated glow
+- Connection lines show latency with color coding
 
-🔧 Configuration
-Adding New Exchanges
-Update lib/exchangeData.ts:
+#### 2. Filtering Data
 
-typescript
+- **Search**: Type exchange name in search box to filter exchanges
+- **Cloud Provider**: Filter by AWS, GCP, Azure, or All
+- **Time Range**: Select historical data period (1h, 24h, 7d, 30d)
+- **Latency Range**: Set min/max latency thresholds using sliders
+
+#### 3. Toggling Visualization Layers
+
+- **Real-time Latency**: Show/hide live connections
+- **Historical Data**: Enable/disable historical charts
+- **Cloud Regions**: Display cloud provider regions
+
+#### 4. API Mode Switching
+
+- **Simulation Mode** (Default): Safe for demo, uses geographic calculations
+- **Real API Mode**: Attempts actual exchange connections (may have CORS issues, falls back to simulation)
+
+### Advanced Features
+
+#### Globe Navigation
+
+- **Rotate**: Click and drag on the globe
+- **Zoom**: Scroll wheel or pinch gesture
+- **Pan**: Right-click and drag (or Ctrl + drag)
+- **Reset**: Double-click to reset camera position
+
+#### Understanding Latency Colors
+
+```typescript
+Green (#22c55e)  : <50ms   - Excellent connection
+Yellow (#eab308) : 50-100ms - Good connection
+Orange (#f97316) : 100-150ms - Fair connection
+Red (#ef4444)    : >150ms  - Poor connection
+```
+
+#### Provider Colors
+
+```typescript
+AWS (Orange)   : #FF9900
+GCP (Blue)     : #4285F4
+Azure (Green)  : #0078D4
+```
+
+## 🔌 API Documentation
+
+### GET /api/latency
+
+Fetches current latency data between all exchange pairs.
+
+**Endpoint:** `/api/latency`
+
+**Method:** `GET`
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "from": "binance-sg",
+      "to": "okx-sg",
+      "latency": 45,
+      "timestamp": 1699876543210
+    }
+  ],
+  "timestamp": 1699876543210
+}
+```
+
+### Latency Calculation Algorithm
+
+**Simulation Mode:**
+
+```typescript
+// Based on geographic distance (Haversine formula)
+distance_km = haversine(exchange1, exchange2)
+base_latency = (distance_km / 100) * 1ms
+jitter = random(-10ms, +10ms)
+provider_penalty = different_providers ? 15ms : 0ms
+total_latency = base_latency + jitter + provider_penalty
+```
+
+**Real API Mode:**
+
+- Attempts actual ping to exchange endpoints
+- Uses Fetch API with CORS handling
+- 5-second timeout per request
+- Falls back to simulation on CORS errors or timeouts
+- Averages multiple measurements for accuracy
+
+### Supported Exchange APIs
+
+- **Binance**: `https://api.binance.com/api/v3/ping`
+- **OKX**: `https://www.okx.com/api/v5/public/time`
+- **Bybit**: `https://api.bybit.com/v2/public/time`
+- **Kraken**: `https://api.kraken.com/0/public/Time`
+- **Coinbase**: `https://api.coinbase.com/v2/time`
+- **Bitfinex**: `https://api-pub.bitfinex.com/v2/platform/status`
+- **Huobi**: `https://api.huobi.pro/v1/common/timestamp`
+- **Gemini**: `https://api.gemini.com/v1/pubticker/btcusd`
+- **KuCoin**: `https://api.kucoin.com/api/v1/timestamp`
+- **Deribit**: `https://www.deribit.com/api/v2/public/test`
+
+## ⚙️ Configuration
+
+### Exchange Data
+
+Add new exchanges in `app/lib/exchanges.ts`:
+
+```typescript
 {
   id: 'exchange-id',
   name: 'Exchange Name',
@@ -159,53 +318,346 @@ typescript
   location: 'Singapore',
   provider: 'AWS',
   region: 'ap-southeast-1',
-  serverCount: 15
+  color: '#FF9900'
 }
-Customizing Visualization
-Adjust globe appearance and camera settings in components/Globe3D.tsx:
+```
 
-typescript
-// Camera configuration
+### Cloud Regions
+
+Configure regions in `app/lib/cloudRegions.ts`:
+
+```typescript
+{
+  id: 'aws-singapore',
+  provider: 'AWS',
+  region: 'ap-southeast-1',
+  lat: 1.3521,
+  lon: 103.8198,
+  name: 'Singapore',
+  serverCount: 42
+}
+```
+
+### Update Intervals
+
+Adjust in respective hooks:
+
+```typescript
+// app/hooks/useLatencyData.ts
+const updateInterval = 5000; // 5 seconds
+
+// app/hooks/useHistoricalData.ts
+const interval = 10000; // 10 seconds
+```
+
+### State Management
+
+Modify default state in `app/store/useStore.ts`:
+
+```typescript
+{
+  selectedExchange: null,
+  selectedCloudProvider: 'all',
+  searchTerm: '',
+  showRealtime: true,
+  showHistorical: true,
+  showRegions: true,
+  darkMode: true,
+  timeRange: '24h',
+  latencyRange: [0, 200],
+}
+```
+
+## 🎨 Customization
+
+### Themes
+
+Toggle between dark/light mode using the sun/moon icon in the control panel. Theme state is persisted using Zustand.
+
+### Globe Appearance
+
+Modify in `app/components/Globe3D.tsx`:
+
+```typescript
+// Globe color
+<meshStandardMaterial
+  color="#0a2540"  // Dark blue
+  roughness={0.9}
+  metalness={0.1}
+/>
+
+// Grid line color
+<lineBasicMaterial
+  color="#1e3a5f"  // Light blue
+  transparent
+  opacity={0.4}
+/>
+```
+
+### Camera Settings
+
+Adjust initial view in `app/components/Globe3D.tsx`:
+
+```typescript
 <Canvas
-  camera={{ 
-    position: [0, 0, 5],
-    fov: 50
+  camera={{
+    position: [0, 0, 5],  // [x, y, z]
+    fov: 50               // Field of view
   }}
 >
-🎯 Key Implementation Details
-Real-time Data Processing
-Dual-mode operation (simulation and real API)
+```
 
-Geographic distance-based latency calculations
+### Latency Color Thresholds
 
-Fallback mechanisms for CORS limitations
+Modify in `app/lib/latencySimulator.ts`:
 
-Efficient data caching and state updates
+```typescript
+export function getLatencyColor(latency: number): string {
+  if (latency < 50) return "#22c55e"; // green
+  if (latency < 100) return "#eab308"; // yellow
+  if (latency < 150) return "#f97316"; // orange
+  return "#ef4444"; // red
+}
+```
 
-Performance Optimization
-Optimized 3D rendering for smooth interactions
+## 🧪 Development
 
-Efficient state management with Zustand
+### Running in Development Mode
 
-Responsive design with mobile touch controls
+```bash
+npm run dev
+```
 
-Progressive loading for large datasets
+The application will be available at `http://localhost:3000`
 
-🚧 Development
-Running Tests
-bash
-npm test
-npm run test:coverage
-Building for Production
-bash
+### Building for Production
+
+```bash
 npm run build
 npm start
-🤝 Contributing
-While this is an assessment project, contributions to the code quality and documentation are welcome through proper channels.
+```
 
+### Linting
 
+```bash
+npm run lint
+```
 
-Built with modern web technologies and a focus on user experience, this Latency Topology Visualizer demonstrates advanced 3D visualization capabilities and real-time data processing in a trading infrastructure context.
+### Type Checking
 
-Technologies: Next.js, React, Three.js, TypeScript, Tailwind CSS, AWS/GCP/Azure Integration
+```bash
+npx tsc --noEmit
+```
+
+### Project Scripts
+
+```json
+{
+  "dev": "next dev --webpack",      # Start development server
+  "build": "next build --webpack",  # Build for production
+  "start": "next start",            # Start production server
+  "lint": "eslint"                  # Run ESLint
+}
+```
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**1. Globe Not Rendering**
+
+- Ensure WebGL is supported in your browser
+- Check browser console for Three.js errors
+- Try disabling browser extensions
+- Update graphics drivers
+- Try a different browser (Chrome, Firefox, Edge)
+
+**2. CORS Errors in Real API Mode**
+
+- Expected behavior for cross-origin requests
+- Use Simulation Mode for demos
+- Configure CORS proxy for production
+- Check browser console for specific error messages
+
+**3. Performance Issues**
+
+- Reduce number of exchanges in `exchanges.ts`
+- Decrease update intervals in hooks
+- Disable auto-rotate feature
+- Lower globe geometry resolution
+- Close other browser tabs
+
+**4. TypeScript Errors**
+
+```bash
+npm run build
+# Check for type errors in terminal output
+```
+
+**5. Module Not Found Errors**
+
+```bash
+# Clear cache and reinstall
+rm -rf node_modules .next
+npm install
+```
+
+**6. Styling Issues**
+
+- Ensure Tailwind CSS is properly configured
+- Check `tailwind.config.ts` for correct content paths
+- Verify PostCSS configuration
+
+### Browser Compatibility
+
+- **Chrome/Edge**: Full support
+- **Firefox**: Full support
+- **Safari**: Full support (may require WebGL enabled)
+- **Opera**: Full support
+- **Mobile browsers**: Limited support (responsive design available)
+
+## 📝 Type Definitions
+
+### Core Types
+
+```typescript
+interface Exchange {
+  id: string;
+  name: string;
+  lat: number;
+  lon: number;
+  location: string;
+  provider: CloudProvider;
+  region: string;
+  color: string;
+}
+
+type CloudProvider = "AWS" | "GCP" | "Azure";
+
+interface CloudRegion {
+  id: string;
+  provider: CloudProvider;
+  region: string;
+  lat: number;
+  lon: number;
+  name: string;
+  serverCount: number;
+}
+
+interface LatencyData {
+  from: string;
+  to: string;
+  latency: number;
+  timestamp: number;
+  color: string;
+}
+
+interface HistoricalDataPoint {
+  timestamp: number;
+  latency: number;
+  min: number;
+  max: number;
+  avg: number;
+}
+```
+
+## 🔒 Security Considerations
+
+- **CORS**: Real API mode may face CORS restrictions
+- **Rate Limiting**: Exchange APIs may have rate limits
+- **API Keys**: Currently using public endpoints (no authentication required)
+- **Data Privacy**: No sensitive data is stored or transmitted
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Import project in Vercel
+3. Deploy automatically
+
+### Docker
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+### Environment Variables
+
+No environment variables are currently required. For production, you may want to add:
+
+```env
+NEXT_PUBLIC_API_URL=https://api.example.com
+NEXT_PUBLIC_ENABLE_REAL_API=true
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+### Code Style
+
+- Follow TypeScript best practices
+- Use ESLint and Prettier
+- Write meaningful commit messages
+- Add comments for complex logic
+- Update documentation for new features
+
+### Development Guidelines
+
+- Write type-safe code
+- Test components before committing
+- Ensure responsive design
+- Maintain dark/light mode compatibility
+- Optimize for performance
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Three.js** community for amazing 3D tools
+- **React Three Fiber** for seamless React integration
+- **Next.js** team for the excellent framework
+- **Cryptocurrency exchanges** for inspiration
+- **Cloud providers** (AWS, GCP, Azure) for infrastructure
+- **Zustand** for lightweight state management
+- **Tailwind CSS** for utility-first styling
+
+## 📞 Support
+
+For issues, questions, or contributions:
+
+- Open an issue on GitHub
+- Check existing documentation
+- Review code comments for implementation details
+
+## 🔮 Future Enhancements
+
+- [ ] Real-time WebSocket connections
+- [ ] Advanced filtering and sorting
+- [ ] Export latency data (CSV, JSON)
+- [ ] Custom exchange configuration UI
+- [ ] Performance optimization for large datasets
+- [ ] Mobile app version
+- [ ] Multi-language support
+- [ ] Advanced analytics dashboard
+- [ ] Alert system for latency spikes
+- [ ] Historical data persistence
+
+---
+
+**Built with ❤️ using Next.js, Three.js & TypeScript**
 
