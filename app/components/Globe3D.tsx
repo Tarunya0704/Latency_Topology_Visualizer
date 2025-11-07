@@ -7,7 +7,7 @@ import * as THREE from "three"
 import type { Exchange, LatencyData, CloudRegion } from "../types"
 import { useStore } from "../store/useStore"
 import HeatmapOverlay from "./HeatmapOverlay"
-import type { JSX } from "react/jsx-runtime" // Import JSX for undeclared variable error
+import type { JSX } from "react/jsx-runtime" 
 
 function LatLonToVector3(lat: number, lon: number, radius: number): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180)

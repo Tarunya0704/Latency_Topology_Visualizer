@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    // Simulate latency data
-    // In production, this would call actual APIs like Cloudflare Radar
+    
     const latencyData = generateMockLatency();
     
     return NextResponse.json({

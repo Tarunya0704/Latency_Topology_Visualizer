@@ -47,7 +47,7 @@ function CloudRegionMarker({ region }: { region: CloudRegion }) {
 
   return (
     <group position={position}>
-      {/* Outer ring */}
+      
       <mesh rotation={[Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.04, 0.06, 32]} />
         <meshBasicMaterial
@@ -58,7 +58,7 @@ function CloudRegionMarker({ region }: { region: CloudRegion }) {
         />
       </mesh>
       
-      {/* Inner fill */}
+      
       <mesh rotation={[Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.04, 32]} />
         <meshBasicMaterial
@@ -69,7 +69,7 @@ function CloudRegionMarker({ region }: { region: CloudRegion }) {
         />
       </mesh>
 
-      {/* Region info label */}
+     
       <Html distanceFactor={15}>
         <div className="text-white text-[10px] bg-black/70 px-2 py-1 rounded whitespace-nowrap pointer-events-none">
           <div className="font-bold">{region.name}</div>
