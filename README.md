@@ -1,4 +1,6 @@
 Latency Topology Visualizer
+
+
 A sophisticated 3D visualization platform that displays cryptocurrency exchange server locations and real-time latency data across AWS, GCP, and Azure cloud regions. Built with Next.js and Three.js, this application provides traders and infrastructure teams with intuitive insights into global trading infrastructure performance.
 
 🌟 Features
