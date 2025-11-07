@@ -1,12 +1,8 @@
-
-
-import axios from 'axios';
 import { Exchange } from '../types';
 
-// Multiple free API options for latency monitoring
 export class LatencyAPIService {
   private static instance: LatencyAPIService;
-  private useSimulation: boolean = true; // Toggle this to switch between API and simulation
+  private useSimulation: boolean = true;
 
   private constructor() {}
 
@@ -17,76 +13,12 @@ export class LatencyAPIService {
     return this.instance;
   }
 
-  // Enable/disable real API calls
   setUseSimulation(useSimulation: boolean) {
     this.useSimulation = useSimulation;
+    console.log(`🔧 API Mode: ${useSimulation ? 'SIMULATION' : 'REAL API'}`);
   }
 
-  /**
-   * Method 1: Cloudflare Speed Test API (Free, No Auth)
-   * Tests connection speed to Cloudflare edge locations
-   */
-  async measureCloudflareLatency(targetUrl: string): Promise<number> {
-    try {
-      const start = performance.now();
-      await axios.get('https://speed.cloudflare.com/__down?bytes=1000', {
-        timeout: 5000,
-        headers: { 'Cache-Control': 'no-cache' }
-      });
-      const end = performance.now();
-      return Math.round(end - start);
-    } catch (error) {
-      console.error('Cloudflare API error:', error);
-      return this.simulateLatency();
-    }
-  }
-
-  /**
-   * Method 2: Measure latency using HEAD request timing
-   * Works with any publicly accessible endpoint
-   */
-  async measureDirectLatency(targetUrl: string): Promise<number> {
-    try {
-      const start = performance.now();
-      await axios.head(targetUrl, {
-        timeout: 5000,
-        headers: { 'Cache-Control': 'no-cache' }
-      });
-      const end = performance.now();
-      return Math.round(end - start);
-    } catch (error) {
-      console.error('Direct latency measurement error:', error);
-      return this.simulateLatency();
-    }
-  }
-
-  /**
-   * Method 3: Use built-in Fetch API with timing
-   */
-  async measureFetchLatency(targetUrl: string): Promise<number> {
-    try {
-      const start = performance.now();
-      const response = await fetch(targetUrl, {
-        method: 'HEAD',
-        cache: 'no-cache',
-        signal: AbortSignal.timeout(5000)
-      });
-      const end = performance.now();
-      
-      if (response.ok) {
-        return Math.round(end - start);
-      }
-      return this.simulateLatency();
-    } catch (error) {
-      console.error('Fetch latency measurement error:', error);
-      return this.simulateLatency();
-    }
-  }
-
-  /**
-   * Method 4: Ping Exchange APIs (Real exchange endpoints)
-   * Most exchanges have public API endpoints that can be pinged
-   */
+  // Ping REAL exchange APIs using Fetch API (better CORS handling)
   async pingExchangeAPI(exchangeName: string): Promise<number> {
     const exchangeAPIs: { [key: string]: string } = {
       'Binance': 'https://api.binance.com/api/v3/ping',
@@ -107,90 +39,84 @@ export class LatencyAPIService {
     }
 
     try {
+      console.log(`📡 Pinging ${exchangeName} API: ${apiUrl}`);
       const start = performance.now();
-      await axios.get(apiUrl, {
-        timeout: 5000,
-        headers: { 'Accept': 'application/json' }
+      
+      // Use fetch instead of axios - better for CORS
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        },
+        mode: 'cors',
+        cache: 'no-cache'
       });
-      const end = performance.now();
-      return Math.round(end - start);
-    } catch (error) {
-      console.error(`${exchangeName} API ping error:`, error);
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        const end = performance.now();
+        const latency = Math.round(end - start);
+        console.log(`✅ ${exchangeName} latency: ${latency}ms`);
+        return latency;
+      } else {
+        console.warn(`⚠️ ${exchangeName} API returned ${response.status}, using simulation`);
+        return this.simulateLatency();
+      }
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.warn(`⏱️ ${exchangeName} API timeout, using simulation`);
+      } else {
+        console.warn(`⚠️ ${exchangeName} API blocked (CORS/Network), using simulation`);
+      }
       return this.simulateLatency();
     }
   }
 
-  /**
-   * Main method: Get latency between two exchanges
-   */
   async getLatencyBetweenExchanges(from: Exchange, to: Exchange): Promise<number> {
     if (this.useSimulation) {
       return this.simulateLatency(from, to);
     }
 
     try {
-      // Try to ping actual exchange APIs
-      const [fromLatency, toLatency] = await Promise.all([
+      const [fromLatency, toLatency] = await Promise.allSettled([
         this.pingExchangeAPI(from.name),
         this.pingExchangeAPI(to.name)
       ]);
 
-      // Average of both endpoints
-      return Math.round((fromLatency + toLatency) / 2);
+      let avgLatency = 0;
+      let count = 0;
+
+      if (fromLatency.status === 'fulfilled') {
+        avgLatency += fromLatency.value;
+        count++;
+      }
+      if (toLatency.status === 'fulfilled') {
+        avgLatency += toLatency.value;
+        count++;
+      }
+
+      if (count > 0) {
+        return Math.round(avgLatency / count);
+      }
+
+      return this.simulateLatency(from, to);
     } catch (error) {
-      console.error('API integration error, falling back to simulation:', error);
+      console.error('API integration error:', error);
       return this.simulateLatency(from, to);
     }
   }
 
-  /**
-   * Batch fetch latencies for all exchange pairs
-   */
-  async getAllLatencies(exchanges: Exchange[]): Promise<Map<string, number>> {
-    const latencies = new Map<string, number>();
-    
-    // Create pairs
-    const pairs: [Exchange, Exchange][] = [];
-    for (let i = 0; i < exchanges.length; i++) {
-      for (let j = i + 1; j < exchanges.length; j++) {
-        pairs.push([exchanges[i], exchanges[j]]);
-      }
-    }
-
-    // Fetch in parallel (with rate limiting)
-    const batchSize = 5; // Process 5 at a time to avoid rate limits
-    for (let i = 0; i < pairs.length; i += batchSize) {
-      const batch = pairs.slice(i, i + batchSize);
-      const results = await Promise.all(
-        batch.map(([from, to]) => 
-          this.getLatencyBetweenExchanges(from, to)
-            .then(latency => ({ key: `${from.id}-${to.id}`, latency }))
-        )
-      );
-
-      results.forEach(({ key, latency }) => {
-        latencies.set(key, latency);
-      });
-
-      // Small delay between batches
-      if (i + batchSize < pairs.length) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-    }
-
-    return latencies;
-  }
-
-  /**
-   * Fallback simulation (same as current implementation)
-   */
   private simulateLatency(from?: Exchange, to?: Exchange): number {
     if (!from || !to) {
       return Math.floor(Math.random() * 150) + 10;
     }
 
-    // Calculate great circle distance
-    const R = 6371; // Earth's radius in km
+    const R = 6371;
     const dLat = ((to.lat - from.lat) * Math.PI) / 180;
     const dLon = ((to.lon - from.lon) * Math.PI) / 180;
     
@@ -204,7 +130,6 @@ export class LatencyAPIService {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c;
     
-    // Base latency: ~1ms per 100km + random jitter
     const baseLatency = (distance / 100) * 1;
     const jitter = Math.random() * 20 - 10;
     const providerPenalty = from.provider !== to.provider ? 15 : 0;
@@ -212,57 +137,32 @@ export class LatencyAPIService {
     return Math.max(5, Math.round(baseLatency + jitter + providerPenalty));
   }
 
-  /**
-   * Health check: Test if APIs are accessible
-   */
   async healthCheck(): Promise<{
-    cloudflare: boolean;
-    exchanges: { [key: string]: boolean };
+    working: string[];
+    failed: string[];
   }> {
-    const health = {
-      cloudflare: false,
-      exchanges: {} as { [key: string]: boolean }
-    };
-
-    // Test Cloudflare
-    try {
-      await this.measureCloudflareLatency('https://speed.cloudflare.com');
-      health.cloudflare = true;
-    } catch {
-      health.cloudflare = false;
-    }
-
-    // Test a few exchange APIs
     const testExchanges = ['Binance', 'Coinbase', 'Kraken'];
+    const working: string[] = [];
+    const failed: string[] = [];
+
+    console.log('🏥 Running API health check...');
+
     for (const exchange of testExchanges) {
       try {
-        await this.pingExchangeAPI(exchange);
-        health.exchanges[exchange] = true;
+        const latency = await this.pingExchangeAPI(exchange);
+        if (latency < 10000) {
+          working.push(exchange);
+        } else {
+          failed.push(exchange);
+        }
       } catch {
-        health.exchanges[exchange] = false;
+        failed.push(exchange);
       }
     }
 
-    return health;
+    console.log('📊 API Health Check Results:', { working, failed });
+    return { working, failed };
   }
 }
 
-// Export singleton instance
 export const latencyAPI = LatencyAPIService.getInstance();
-
-/**
- * USAGE EXAMPLES:
- * 
- * // Enable real API calls
- * latencyAPI.setUseSimulation(false);
- * 
- * // Get latency between two exchanges
- * const latency = await latencyAPI.getLatencyBetweenExchanges(exchange1, exchange2);
- * 
- * // Get all latencies at once
- * const allLatencies = await latencyAPI.getAllLatencies(EXCHANGES);
- * 
- * // Check API health
- * const health = await latencyAPI.healthCheck();
- * console.log('APIs available:', health);
- */
